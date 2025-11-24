@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Understanding U-Boot Bootloader</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .content-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .content-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            color: #764ba2;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #667eea;
+            margin: 20px 0 10px 0;
+            font-size: 1.3em;
+        }
+
+        .boot-stages {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stage {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stage:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .stage-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .feature-item {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            background: #e0e0ff;
+            border-left: 4px solid #764ba2;
+        }
+
+        .diagram {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .arrow {
+            font-size: 2em;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .boot-stages {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚙️ U-Boot Bootloader</h1>
+            <p class="subtitle">Universal Boot Loader - The Open Source Bootloader</p>
+        </header>
+
+        <div class="content-section">
+            <h2>What is U-Boot?</h2>
+            <p>U-Boot (Universal Boot Loader) is an open-source bootloader widely used in embedded systems. It initializes hardware, loads the operating system kernel, and provides a command-line interface for system configuration and debugging.</p>
+            <p>U-Boot supports a wide range of architectures including ARM, x86, MIPS, PowerPC, and more, making it the most popular bootloader for embedded Linux devices.</p>
+        </div>
+
+        <div class="content-section">
+            <h2>Boot Process Stages</h2>
+            <div class="boot-stages">
+                <div class="stage">
+                    <div class="stage-number">1</div>
+                    <h3>ROM Code</h3>
+                    <p>CPU executes built-in ROM code that loads first-stage bootloader</p>
+                </div>
+                <div class="stage">
+                    <div class="stage-number">2</div>
+                    <h3>SPL/TPL</h3>
+                    <p>Secondary Program Loader initializes basic hardware (RAM, clocks)</p>
+                </div>
+                <div class="stage">
+                    <div class="stage-number">3</div>
+                    <h3>U-Boot Proper</h3>
+                    <p>Full U-Boot loads, provides CLI and prepares kernel</p>
+                </div>
+                <div class="stage">
+                    <div class="stage-number">4</div>
+                    <h3>Kernel Boot</h3>
+                    <p>Loads Linux kernel and device tree into memory</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>How U-Boot Works</h2>
+            
+            <div class="diagram">
+                <strong>Boot Flow</strong>
+                <div class="arrow">↓</div>
+                <p>Power On → ROM Code → SPL → U-Boot → Kernel → OS</p>
+            </div>
+
+            <h3>Initialization Phase</h3>
+            <p>When powered on, U-Boot performs several critical tasks:</p>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <strong>Hardware Init</strong><br>
+                    Sets up CPU, memory controller, clocks
+                </div>
+                <div class="feature-item">
+                    <strong>Memory Setup</strong><br>
+                    Initializes and tests RAM
+                </div>
+                <div class="feature-item">
+                    <strong>Device Detection</strong><br>
+                    Discovers storage devices, network interfaces
+                </div>
+                <div class="feature-item">
+                    <strong>Environment Load</strong><br>
+                    Loads configuration variables
+                </div>
+            </div>
+
+            <h3>Command Line Interface</h3>
+            <p>U-Boot provides a powerful CLI for system management:</p>
+            <div class="code-block">
+=> printenv          # Display environment variables
+=> setenv bootargs console=ttyS0,115200
+=> saveenv          # Save environment to storage
+=> fatload mmc 0:1 0x80000000 uImage
+=> bootm 0x80000000 # Boot kernel from memory address
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>Key Features</h2>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <strong>Multi-Architecture</strong><br>
+                    Supports ARM, x86, MIPS, RISC-V, and more
+                </div>
+                <div class="feature-item">
+                    <strong>Network Boot</strong><br>
+                    TFTP, NFS, HTTP support
+                </div>
+                <div class="feature-item">
+                    <strong>File Systems</strong><br>
+                    FAT, ext2/3/4, UBIFS, JFFS2
+                </div>
+                <div class="feature-item">
+                    <strong>Scripting</strong><br>
+                    Automated boot sequences
+                </div>
+                <div class="feature-item">
+                    <strong>Firmware Update</strong><br>
+                    Flash memory programming
+                </div>
+                <div class="feature-item">
+                    <strong>Device Tree</strong><br>
+                    Hardware description support
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>Common Use Cases</h2>
+            <h3>Embedded Linux Devices</h3>
+            <p>U-Boot is the standard bootloader for:</p>
+            <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>Single-board computers (Raspberry Pi, BeagleBone)</li>
+                <li>IoT devices and sensors</li>
+                <li>Network routers and switches</li>
+                <li>Industrial control systems</li>
+                <li>Automotive systems</li>
+            </ul>
+
+            <h3>Development and Debugging</h3>
+            <p>Developers use U-Boot to test kernels, debug hardware issues, and perform firmware updates without needing external programmers.</p>
+        </div>
+
+        <div class="content-section">
+            <h2>Environment Variables</h2>
+            <p>U-Boot uses environment variables to control boot behavior:</p>
+            <div class="code-block">
+bootcmd=mmc dev 0; fatload mmc 0:1 0x80000000 zImage; bootz 0x80000000
+bootargs=console=ttyS0,115200 root=/dev/mmcblk0p2 rootwait
+bootdelay=3
+            </div>
+            <p>These variables determine what device to boot from, kernel parameters, and automatic boot timing.</p>
+        </div>
+
+        <footer>
+            <p><strong>Created by Dinesh</strong></p>
+            <p>Visit: <a href="http://www.reading-uboot.com" style="color: white; text-decoration: underline;">www.reading-uboot.com</a></p>
+        </footer>
+    </div>
+</body>
+</html>
